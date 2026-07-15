@@ -1,0 +1,8 @@
+local RS = game:GetService("ReplicatedStorage")
+local event = RS:WaitForChild("TimeUpdate")
+
+local lable = script.Parent
+
+event.OnClientEvent:Connect(function(text)
+	lable.Text = text
+end)
