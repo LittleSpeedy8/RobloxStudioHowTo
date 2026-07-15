@@ -1,0 +1,64 @@
+local RS = game:GetService("ReplicatedStorage")
+local Lighting = game:GetService("Lighting")
+
+local event = RS:WaitForChild("TimeUpdate")
+
+local Day_Length = 120
+
+local days = { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" }
+local currentDayIndex = 1
+local gameHour = 6
+local gameMinute = 0
+local gameSecond = 0
+
+local function pad(n)
+	return string.format("%02d", n)
+end
+
+local function formatTime()
+	local hour12 = gameHour
+	local suffix = "AM"
+	
+	if hour12 >= 12 then suffix = "PM" end
+	if hour12 == 0 then hour12 = 12
+	elseif hour12 > 12 then hour12 = hour12 - 12 end
+	
+	return string.format(
+		"%s • %d:%s %s",
+		days[currentDayIndex],
+		hour12,
+		pad(gameMinute),
+		suffix
+	)
+end
+
+while true do
+	gameSecond += 1
+	
+	if gameSecond >= (Day_Length / 86400) * 60 then
+		gameSecond = 0
+		gameMinute += 1
+	end
+	
+	
+	if gameMinute >= 60 then
+		gameMinute = 0
+		gameHour += 1
+	end
+
+	
+	if gameHour >= 24 then
+		gameHour = 0
+		currentDayIndex += 1
+		if currentDayIndex > #days then
+			currentDayIndex = 1
+		end
+	end
+	
+	local timePercent = ( gameHour * 3600 + gameMinute * 60 ) / 86400
+	Lighting.ClockTime = timePercent * 24
+	
+	event:FireAllClients(formatTime())
+	
+	task.wait(0)
+end
